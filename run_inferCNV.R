@@ -3,6 +3,8 @@ if (!requireNamespace("infercnv", quietly = TRUE)) {
   BiocManager::install("infercnv")
 }
 
+install.packages("rjags")
+library(rjags)
 library(infercnv)
 
 # Set working directories
@@ -15,7 +17,8 @@ gene_order_file <- file.path(base_dir, "gene_ordering_file.txt")
 reference_types <- c("T/NK Cells", "Endothelial", "Myeloid", "B/plasma", "Mesenchyme", "Mast")
 
 # List GSM sample folders
-samples <- list.dirs(base_dir, full.names = TRUE, recursive = FALSE)
+samples <- list.dirs(file.path(base_dir, "infercnv_input"), full.names = TRUE, recursive = FALSE)
+samples <- samples[!grepl("/\\.", samples)] # Exclude hidden directories
 
 # Loop over each GSM sample
 for (sample_dir in samples) {
@@ -33,7 +36,7 @@ for (sample_dir in samples) {
   counts_matrix <- as.matrix(counts_matrix)
   
   # Load and Review Cell Annotations
-  cell_annotations <- read.table(annot_file, header = TRUE, sep="\t", stringAsFactors=FALSE)
+  cell_annotations <- read.table(annot_file, header = TRUE, sep="\t")
   colnames(cell_annotations) <- c("CellID", "ClusterLabel")
   
   # Identify Reference Cells
